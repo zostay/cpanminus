@@ -183,6 +183,16 @@ sub search_module {
 
     $self->diag_fail("Finding $module on search.cpan.org failed.");
 
+    for my $mirror (@{ $self->{mirrors} }) {
+        $self->chat("Searching $module on mirror $mirror ...\n");
+        my $uri = "$mirror/modules/02packages.details.txt.gz";
+        my $details = $self->get($uri);
+        $details =~ m!^\Q$module\E\s+[\w\.]+\s+(.*)!m
+            and return $self->cpan_module($module, $1);
+
+        $self->diag_fail("Finding $module on mirror $mirror failed.");
+    }
+
     return;
 }
 
